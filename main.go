@@ -133,6 +133,13 @@ func Classes(list ...string) Option {
 	})
 }
 
+// returnErr is used for testing
+func returnErr(msg string) Option {
+	return option(func(c *config) error {
+		return errors.New(msg)
+	})
+}
+
 // New generates an avatar for the given name.
 func New(name string, opts ...Option) (string, error) {
 
@@ -174,31 +181,39 @@ func New(name string, opts ...Option) (string, error) {
 
 }
 
-type Avatar string
+type Avatar struct {
+	raw string
+	err error
+}
 
 // Render lets the Avatar be rendered in templ.
 // https://github.com/a-h/templ
 func (a Avatar) Render(_ context.Context, w io.Writer) error {
-	r := string(a)
 
-	_, err := io.WriteString(w, r)
+	if a.err != nil {
+		return a.err
+	}
+
+	_, err := io.WriteString(w, a.raw)
 
 	return err
 }
 
 // String reverts the Avatar back into a string.
 func (a Avatar) String() string {
-	return string(a)
+
+	if a.err != nil {
+		return ""
+	}
+
+	return a.raw
 }
 
+// Render returns an Avatar struct that contains the boring avatar and a potential error.
 func Render(name string, opts ...Option) Avatar {
 
 	result, err := New(name, opts...)
-	if err != nil {
-		return Avatar("")
-	}
-
-	return Avatar(result)
+	return Avatar{result, err}
 
 }
 

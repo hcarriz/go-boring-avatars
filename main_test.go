@@ -282,7 +282,7 @@ func TestAvatar_Render(t *testing.T) {
 func TestRender(t *testing.T) {
 	tests := []struct {
 		name string
-		want Avatar
+		want string
 	}{
 		{
 			name: "Mary Baker",
@@ -324,7 +324,7 @@ func TestRender(t *testing.T) {
 				t.Errorf("received error for rendered: %v", err)
 				return
 			}
-			i, err := getInternals(tt.want.String())
+			i, err := getInternals(tt.want)
 			if err != nil {
 				t.Log(tt.want)
 				t.Errorf("received error for wanted: %v", err)
@@ -364,11 +364,8 @@ func TestClasses(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			r, err := New(tt.name, Classes(tt.want...))
-			if err != nil {
-				t.Error(err.Error())
-				return
-			}
+			raw := Render(tt.name, Classes(tt.want...))
+			r := raw.String()
 
 			if tt.wantClasses && !strings.HasPrefix(r, fmt.Sprintf(`<svg viewBox="0 0 80 80" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="%s">`, strings.Join(tt.want, " "))) {
 				t.Errorf("%s does not have classes %s", tt.name, tt.want)
@@ -378,6 +375,34 @@ func TestClasses(t *testing.T) {
 			if !tt.wantClasses && !strings.HasPrefix(r, `<svg viewBox="0 0 80 80" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="40" height="40">`) {
 				t.Errorf("%s has classes when they shouldn't", tt.name)
 				return
+			}
+
+		})
+	}
+
+}
+
+func TestErr(t *testing.T) {
+	tests := []struct {
+		name string
+	}{
+		{
+			name: "Mary Baker",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			r := Render(tt.name, returnErr("testing"))
+
+			b := bytes.NewBuffer(nil)
+
+			if err := r.Render(nil, b); err == nil {
+				t.Errorf("%s did not return an error", tt.name)
+			}
+
+			if r.String() != "" {
+				t.Errorf("%s returned data", tt.name)
 			}
 
 		})
