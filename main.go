@@ -57,6 +57,7 @@ type config struct {
 	name    string
 	variant Name
 	colors  []string
+	classes []string
 }
 
 type option func(*config) error
@@ -120,6 +121,14 @@ func Colors(one, two, three, four, five string) Option {
 
 		c.colors = []string{one, two, three, four, five}
 
+		return nil
+	})
+}
+
+// Classes adds classes to the svg.
+func Classes(list ...string) Option {
+	return option(func(c *config) error {
+		c.classes = append(c.classes, list...)
 		return nil
 	})
 }
@@ -195,7 +204,13 @@ func Render(name string, opts ...Option) Avatar {
 
 func (a config) start(svg *strings.Builder, maskID string, size int) {
 
-	svg.WriteString(fmt.Sprintf(`<svg viewBox="0 0 %d %d" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="%d" height="%d">`, size, size, a.size, a.size))
+	svg.WriteString(fmt.Sprintf(`<svg viewBox="0 0 %d %d" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="%d" height="%d"`, size, size, a.size, a.size))
+
+	if len(a.classes) > 0 {
+		svg.WriteString(fmt.Sprintf(` class="%s"`, strings.Join(a.classes, " ")))
+	}
+
+	svg.WriteString(`>`)
 
 	// Add the title
 	if a.title {

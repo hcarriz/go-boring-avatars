@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"os"
 	"regexp"
+	"strings"
 	"testing"
 )
 
@@ -336,4 +337,50 @@ func TestRender(t *testing.T) {
 
 		})
 	}
+}
+
+func TestClasses(t *testing.T) {
+	tests := []struct {
+		name        string
+		want        []string
+		wantClasses bool
+	}{
+		{
+			name:        "Mary Baker",
+			want:        nil,
+			wantClasses: false,
+		},
+		{
+			name:        "Mary Baker",
+			want:        []string{"single"},
+			wantClasses: true,
+		},
+		{
+			name:        "Mary Baker",
+			want:        []string{"single", "double"},
+			wantClasses: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			r, err := New(tt.name, Classes(tt.want...))
+			if err != nil {
+				t.Error(err.Error())
+				return
+			}
+
+			if tt.wantClasses && !strings.HasPrefix(r, fmt.Sprintf(`<svg viewBox="0 0 80 80" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="40" height="40" class="%s">`, strings.Join(tt.want, " "))) {
+				t.Errorf("%s does not have classes %s", tt.name, tt.want)
+				return
+			}
+
+			if !tt.wantClasses && !strings.HasPrefix(r, `<svg viewBox="0 0 80 80" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="40" height="40">`) {
+				t.Errorf("%s has classes when they shouldn't", tt.name)
+				return
+			}
+
+		})
+	}
+
 }
