@@ -1,8 +1,10 @@
 package goboringavatars
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 )
 
@@ -163,9 +165,37 @@ func New(name string, opts ...Option) (string, error) {
 
 }
 
-func (a config) start(svg *strings.Builder, maskID string, dsize int) {
+type Avatar string
 
-	svg.WriteString(fmt.Sprintf(`<svg viewBox="0 0 %d %d" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="%d" height="%d">`, dsize, dsize, a.size, a.size))
+// Render lets the Avatar be rendered in templ.
+// https://github.com/a-h/templ
+func (a Avatar) Render(_ context.Context, w io.Writer) error {
+	r := string(a)
+
+	_, err := io.WriteString(w, r)
+
+	return err
+}
+
+// String reverts the Avatar back into a string.
+func (a Avatar) String() string {
+	return string(a)
+}
+
+func Render(name string, opts ...Option) Avatar {
+
+	result, err := New(name, opts...)
+	if err != nil {
+		return Avatar("")
+	}
+
+	return Avatar(result)
+
+}
+
+func (a config) start(svg *strings.Builder, maskID string, size int) {
+
+	svg.WriteString(fmt.Sprintf(`<svg viewBox="0 0 %d %d" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="%d" height="%d">`, size, size, a.size, a.size))
 
 	// Add the title
 	if a.title {
@@ -173,10 +203,10 @@ func (a config) start(svg *strings.Builder, maskID string, dsize int) {
 	}
 
 	// Add the mask
-	svg.WriteString(fmt.Sprintf(`<mask id="%s" maskUnits="userSpaceOnUse" x="0" y="0" width="%d" height="%d"><rect width="%d" height="%d" `, maskID, dsize, dsize, dsize, dsize))
+	svg.WriteString(fmt.Sprintf(`<mask id="%s" maskUnits="userSpaceOnUse" x="0" y="0" width="%d" height="%d"><rect width="%d" height="%d" `, maskID, size, size, size, size))
 
 	if !a.square {
-		svg.WriteString(fmt.Sprintf(`rx="%d" `, dsize*2))
+		svg.WriteString(fmt.Sprintf(`rx="%d" `, size*2))
 	}
 
 	svg.WriteString(fmt.Sprintf(`fill="#FFFFFF"></rect></mask><g mask="url(#%s)">`, maskID))

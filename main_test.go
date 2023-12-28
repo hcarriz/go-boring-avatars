@@ -1,6 +1,8 @@
 package goboringavatars
 
 import (
+	"bytes"
+	"context"
 	"encoding/xml"
 	"fmt"
 	"log/slog"
@@ -245,6 +247,93 @@ func TestNew(t *testing.T) {
 			if g != i {
 				t.Errorf("New()\ng: %v\nw: %v", g, i)
 			}
+		})
+	}
+}
+
+func TestAvatar_Render(t *testing.T) {
+	type args struct {
+		in0 context.Context
+	}
+	tests := []struct {
+		name    string
+		a       Avatar
+		args    args
+		wantW   string
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			w := &bytes.Buffer{}
+			if err := tt.a.Render(tt.args.in0, w); (err != nil) != tt.wantErr {
+				t.Errorf("Avatar.Render() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if gotW := w.String(); gotW != tt.wantW {
+				t.Errorf("Avatar.Render() = %v, want %v", gotW, tt.wantW)
+			}
+		})
+	}
+}
+
+func TestRender(t *testing.T) {
+	tests := []struct {
+		name string
+		want Avatar
+	}{
+		{
+			name: "Mary Baker",
+			want: `<svg viewBox="0 0 80 80" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="80" height="80"><mask id=":r3a:" maskUnits="userSpaceOnUse" x="0" y="0" width="80" height="80"><rect width="80" height="80" rx="160" fill="#FFFFFF"></rect></mask><g mask="url(#:r3a:)"><rect width="80" height="80" fill="#0A0310"></rect><path filter="url(#prefix__filter0_f)" d="M32.414 59.35L50.376 70.5H72.5v-71H33.728L26.5 13.381l19.057 27.08L32.414 59.35z" fill="#49007E" transform="translate(-0 -0) rotate(-320 40 40) scale(1.2)"></path><path filter="url(#prefix__filter0_f)" style="mix-blend-mode: overlay;" d="M22.216 24L0 46.75l14.108 38.129L78 86l-3.081-59.276-22.378 4.005 12.972 20.186-23.35 27.395L22.215 24z" fill="#FF005B" transform="translate(-4 -4) rotate(-300 40 40) scale(1.2)"></path></g><defs><filter id="prefix__filter0_f" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend><feGaussianBlur stdDeviation="7" result="effect1_foregroundBlur"></feGaussianBlur></filter></defs></svg>`,
+		},
+		{
+			name: "Amelia Earhart",
+			want: `<svg viewBox="0 0 80 80" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="80" height="80"><mask id=":r3b:" maskUnits="userSpaceOnUse" x="0" y="0" width="80" height="80"><rect width="80" height="80" rx="160" fill="#FFFFFF"></rect></mask><g mask="url(#:r3b:)"><rect width="80" height="80" fill="#FFB238"></rect><path filter="url(#prefix__filter0_f)" d="M32.414 59.35L50.376 70.5H72.5v-71H33.728L26.5 13.381l19.057 27.08L32.414 59.35z" fill="#0A0310" transform="translate(-0 -0) rotate(-288 40 40) scale(1.2)"></path><path filter="url(#prefix__filter0_f)" style="mix-blend-mode: overlay;" d="M22.216 24L0 46.75l14.108 38.129L78 86l-3.081-59.276-22.378 4.005 12.972 20.186-23.35 27.395L22.215 24z" fill="#49007E" transform="translate(4 -4) rotate(252 40 40) scale(1.2)"></path></g><defs><filter id="prefix__filter0_f" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend><feGaussianBlur stdDeviation="7" result="effect1_foregroundBlur"></feGaussianBlur></filter></defs></svg>`,
+		},
+		{
+			name: "Mary Roebling",
+			want: `<svg viewBox="0 0 80 80" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="80" height="80"><mask id=":r3c:" maskUnits="userSpaceOnUse" x="0" y="0" width="80" height="80"><rect width="80" height="80" rx="160" fill="#FFFFFF"></rect></mask><g mask="url(#:r3c:)"><rect width="80" height="80" fill="#0A0310"></rect><path filter="url(#prefix__filter0_f)" d="M32.414 59.35L50.376 70.5H72.5v-71H33.728L26.5 13.381l19.057 27.08L32.414 59.35z" fill="#49007E" transform="translate(6 6) rotate(310 40 40) scale(1.3)"></path><path filter="url(#prefix__filter0_f)" style="mix-blend-mode: overlay;" d="M22.216 24L0 46.75l14.108 38.129L78 86l-3.081-59.276-22.378 4.005 12.972 20.186-23.35 27.395L22.215 24z" fill="#FF005B" transform="translate(-1 -1) rotate(-105 40 40) scale(1.3)"></path></g><defs><filter id="prefix__filter0_f" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend><feGaussianBlur stdDeviation="7" result="effect1_foregroundBlur"></feGaussianBlur></filter></defs></svg>`,
+		},
+		{
+			name: "Sarah Winnemucca",
+			want: `<svg viewBox="0 0 80 80" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="80" height="80"><mask id=":r3d:" maskUnits="userSpaceOnUse" x="0" y="0" width="80" height="80"><rect width="80" height="80" rx="160" fill="#FFFFFF"></rect></mask><g mask="url(#:r3d:)"><rect width="80" height="80" fill="#49007E"></rect><path filter="url(#prefix__filter0_f)" d="M32.414 59.35L50.376 70.5H72.5v-71H33.728L26.5 13.381l19.057 27.08L32.414 59.35z" fill="#FF005B" transform="translate(-2 -2) rotate(-242 40 40) scale(1.5)"></path><path filter="url(#prefix__filter0_f)" style="mix-blend-mode: overlay;" d="M22.216 24L0 46.75l14.108 38.129L78 86l-3.081-59.276-22.378 4.005 12.972 20.186-23.35 27.395L22.215 24z" fill="#FF7D10" transform="translate(-7 7) rotate(-183 40 40) scale(1.5)"></path></g><defs><filter id="prefix__filter0_f" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend><feGaussianBlur stdDeviation="7" result="effect1_foregroundBlur"></feGaussianBlur></filter></defs></svg>`,
+		},
+		{
+			name: "Margaret Brent",
+			want: `<svg viewBox="0 0 80 80" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="80" height="80"><mask id=":r3e:" maskUnits="userSpaceOnUse" x="0" y="0" width="80" height="80"><rect width="80" height="80" rx="160" fill="#FFFFFF"></rect></mask><g mask="url(#:r3e:)"><rect width="80" height="80" fill="#49007E"></rect><path filter="url(#prefix__filter0_f)" d="M32.414 59.35L50.376 70.5H72.5v-71H33.728L26.5 13.381l19.057 27.08L32.414 59.35z" fill="#FF005B" transform="translate(0 0) rotate(352 40 40) scale(1.2)"></path><path filter="url(#prefix__filter0_f)" style="mix-blend-mode: overlay;" d="M22.216 24L0 46.75l14.108 38.129L78 86l-3.081-59.276-22.378 4.005 12.972 20.186-23.35 27.395L22.215 24z" fill="#FF7D10" transform="translate(-4 -4) rotate(-348 40 40) scale(1.2)"></path></g><defs><filter id="prefix__filter0_f" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"></feFlood><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"></feBlend><feGaussianBlur stdDeviation="7" result="effect1_foregroundBlur"></feGaussianBlur></filter></defs></svg>`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			r := Render(tt.name, Size(80))
+
+			b := bytes.NewBuffer(nil)
+
+			if err := r.Render(nil, b); err != nil {
+				t.Errorf("unable to render: %v", err)
+				return
+			}
+
+			got := b.String()
+
+			g, err := getInternals(got)
+			if err != nil {
+				t.Log(got)
+				t.Errorf("received error for rendered: %v", err)
+				return
+			}
+			i, err := getInternals(tt.want.String())
+			if err != nil {
+				t.Log(tt.want)
+				t.Errorf("received error for wanted: %v", err)
+				return
+			}
+
+			if g != i {
+				t.Errorf("New()\ng: %v\nw: %v", g, i)
+			}
+
 		})
 	}
 }
