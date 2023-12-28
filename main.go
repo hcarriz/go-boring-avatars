@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -51,7 +52,7 @@ var (
 
 // Config
 type config struct {
-	size    int
+	size    string
 	square  bool
 	title   bool
 	name    string
@@ -71,15 +72,20 @@ type Option interface {
 	apply(*config) error
 }
 
-// Size sets the size of the Avatar in pixels.
-func Size(pixels int) Option {
+// Size sets the size of the Avatar.
+func Size(size float64, unit string) Option {
 	return option(func(c *config) error {
 
-		if pixels < 0 {
+		if size < 0 {
 			return ErrNegativePixels
 		}
 
-		c.size = pixels
+		s := strings.Builder{}
+
+		s.WriteString(strconv.FormatFloat(size, 'f', -1, 64))
+		s.WriteString(strings.ToLower(unit))
+
+		c.size = s.String()
 
 		return nil
 	})
@@ -133,7 +139,7 @@ func Classes(list ...string) Option {
 	})
 }
 
-// returnErr is used for testing
+// returnErr is used for testing to cause errors
 func returnErr(msg string) Option {
 	return option(func(c *config) error {
 		return errors.New(msg)
@@ -150,7 +156,7 @@ func New(name string, opts ...Option) (string, error) {
 	var (
 		c = config{
 			name:   name,
-			size:   40,
+			size:   "40",
 			colors: defaultColors,
 		}
 		err error
@@ -219,7 +225,7 @@ func Render(name string, opts ...Option) Avatar {
 
 func (a config) start(svg *strings.Builder, maskID string, size int) {
 
-	svg.WriteString(fmt.Sprintf(`<svg viewBox="0 0 %d %d" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="%d" height="%d"`, size, size, a.size, a.size))
+	svg.WriteString(fmt.Sprintf(`<svg viewBox="0 0 %d %d" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="%s" height="%s"`, size, size, a.size, a.size))
 
 	if len(a.classes) > 0 {
 		svg.WriteString(fmt.Sprintf(` class="%s"`, strings.Join(a.classes, " ")))

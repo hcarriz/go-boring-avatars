@@ -2,7 +2,6 @@ package goboringavatars
 
 import (
 	"bytes"
-	"context"
 	"encoding/xml"
 	"fmt"
 	"log/slog"
@@ -252,33 +251,6 @@ func TestNew(t *testing.T) {
 	}
 }
 
-func TestAvatar_Render(t *testing.T) {
-	type args struct {
-		in0 context.Context
-	}
-	tests := []struct {
-		name    string
-		a       Avatar
-		args    args
-		wantW   string
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			w := &bytes.Buffer{}
-			if err := tt.a.Render(tt.args.in0, w); (err != nil) != tt.wantErr {
-				t.Errorf("Avatar.Render() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if gotW := w.String(); gotW != tt.wantW {
-				t.Errorf("Avatar.Render() = %v, want %v", gotW, tt.wantW)
-			}
-		})
-	}
-}
-
 func TestRender(t *testing.T) {
 	tests := []struct {
 		name string
@@ -307,7 +279,7 @@ func TestRender(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r := Render(tt.name, Size(80))
+			r := Render(tt.name, Size(80, "px"))
 
 			b := bytes.NewBuffer(nil)
 
@@ -403,6 +375,48 @@ func TestErr(t *testing.T) {
 
 			if r.String() != "" {
 				t.Errorf("%s returned data", tt.name)
+			}
+
+		})
+	}
+
+}
+
+func TestSizing(t *testing.T) {
+	tests := []struct {
+		name string
+		size float64
+		unit string
+		want string
+	}{
+		{
+			name: "Mary Baker",
+			size: 40,
+			unit: "px",
+			want: "40px",
+		},
+		{
+			name: "Mary Baker",
+			size: 1.500,
+			unit: "rem",
+			want: "1.5rem",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			r, err := New(tt.name, Size(tt.size, tt.unit))
+			if err != nil {
+				t.Errorf("%s got %v", tt.name, err)
+				return
+			}
+
+			if !strings.HasPrefix(r, fmt.Sprintf(`<svg viewBox="0 0 80 80" fill="none" role="img" xmlns="http://www.w3.org/2000/svg" width="%s" height="%s">`, tt.want, tt.want)) {
+
+				b, _, _ := strings.Cut(r, "><")
+
+				t.Errorf("%s does not have %s as sizes\n%s>", tt.name, tt.want, b)
+				return
 			}
 
 		})
