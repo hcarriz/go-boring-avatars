@@ -49,7 +49,7 @@ func (a config) marble() string {
 
 	svg.WriteString(fmt.Sprintf(`<path filter="url(#prefix__filter0_f)" style="mix-blend-mode: overlay;" d="M22.216 24L0 46.75l14.108 38.129L78 86l-3.081-59.276-22.378 4.005 12.972 20.186-23.35 27.395L22.215 24z" fill="%s" transform="translate(%.0f %.0f) rotate(%.0f %d %d) scale(%.1f)"></path>`, properties[2].color, properties[2].translateX, properties[2].translateY, properties[2].rotate, dsize/2, dsize/2, properties[2].scale))
 
-	a.end(&svg, `<filter id="prefix__filter0_f" filterUnits="userSpaceOnUser" colorInterpolationFilters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix" /><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" /><feGaussianBlur stdDeviation="7" result="effect1_foregoundBlur"/></filter>`)
+	a.end(&svg, `<filter id="prefix__filter0_f" filterUnits="userSpaceOnUse" colorInterpolationFilters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix" /><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" /><feGaussianBlur stdDeviation="7" result="effect1_foregoundBlur"/></filter>`)
 
 	return svg.String()
 }
